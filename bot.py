@@ -31,6 +31,8 @@ def hello(message):
 @bot.message_handler(commands=['summoner'])
 def command_summoner(message):
     summoner = bot.send_message(message.chat.id, "Напиши имя своего чампа:")
+    bot.register_next_step_handler(summoner, local)
+
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
