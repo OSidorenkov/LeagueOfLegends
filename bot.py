@@ -4,8 +4,9 @@ import telebot
 import config
 import time
 from telebot import types
+import lol_api
 
-knownUsers = []  # todo: save these in a file,
+knownUsers = {}  # todo: save these in a file,
 userStep = {}  # so they won't reset every time the bot restarts
 
 commands = {  # command description used in the "help" command
@@ -43,17 +44,7 @@ bot = telebot.TeleBot(config.bot_token)
 @bot.message_handler(commands=['start'])
 def command_start(m):
     cid = m.chat.id
-    if cid not in knownUsers:  # if user hasn't used the "/start" command yet:
-        knownUsers.append(cid)  # save user id, so you could brodcast messages to all users of this bot later
-        userStep[cid] = 0  # save user id and his current "command level", so he can use the "/getImage" command
-        bot.send_message(cid, "Здарова, чувак! Дай я тебя чекну...")
-        bot.send_message(cid, "Чекнул, теперь ты от меня не уйдешь")
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup.add('Задрот', 'Геймер')
-        msg = bot.reply_to(m, 'Кто ты по жизни?', reply_markup=markup)
-        command_help(m)  # show the new user the help page
-    else:
-        bot.send_message(cid, "Я уже в курсе кто ты, не надо жать на START, как пенек")
+    bot.send_message(cid, "Рад тебя видеть чампион! Светани свой ник, чтобы я заценил как ты тащишь катки =)")
 
 
 # help page
@@ -85,9 +76,30 @@ def command_text_hi(m):
 # default handler for every other text
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def command_default(m):
+    cid = m.chat.id
+    sumname = m.text
     # this is the standard reply to a normal message
-    bot.send_message(m.chat.id, "I don't understand \"" + m.text + "\"\nMaybe try the help page at /help")
+    lol_api.summoner(sumname)
+    knownUsers[cid] = sumname
+    bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
+    time.sleep(1)
+    bot.send_message(m.chat.id, "Чекнул.. Конечно, я ожидал большего")
+    bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
+    time.sleep(1)
+    bot.send_message(m.chat.id, "Твой левел = " + lol_api.summoner(sumname))
 
+    # bot.send_message(m.chat.id, "I don't understand \"" + m.text + "\"\nMaybe try the help page at /help")
+
+
+@bot.message_handler(commands=['ranked'])
+def command_ranked(m):
+    cid = m.chat.id
+    sumname = knownUsers[cid]
+    print(sumname)
+    # this is the standard reply to a normal message
+    bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
+    time.sleep(1)
+    bot.send_message(m.chat.id, "Твоя стата в ранкеде: " + lol_api.ranked(sumname))
 
 # @bot.message_handler(func=lambda message: True, content_types=['text'])
 # def menu(message):
