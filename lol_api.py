@@ -1,16 +1,20 @@
+from requests import HTTPError
 from riotwatcher import RiotWatcher
 import config
 
 watcher = RiotWatcher(config.riot_token)
 
 my_region = 'ru'
-sumname = 'Barichpock'
+sumname = 'TestBLYATb'
 
 
 def summoner(sumname):
-    me = watcher.summoner.by_name(my_region, sumname)
-    level = str(me['summonerLevel'])
-    return str(me['id'])
+    try:
+        me = watcher.summoner.by_name(my_region, sumname)
+        level = str(me['summonerLevel'])
+        return str(me['id'])
+    except HTTPError:
+        print('Summoner not found')
 
 
 # def ranked(sumname):
@@ -30,4 +34,5 @@ def ranked(sumname):
     return text
 
 
-ranked(sumname)
+# ranked(sumname)
+summoner(sumname)
