@@ -1,11 +1,9 @@
-from requests import HTTPError
 from riotwatcher import RiotWatcher
 import config
 
 watcher = RiotWatcher(config.riot_token)
 
 my_region = 'ru'
-# sumname = 'TestBLYATb'
 
 
 def summoner(sumname):
