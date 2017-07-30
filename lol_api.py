@@ -5,7 +5,7 @@ import config
 watcher = RiotWatcher(config.riot_token)
 
 my_region = 'ru'
-sumname = 'TestBLYATb'
+# sumname = 'TestBLYATb'
 
 
 def summoner(sumname):
@@ -29,10 +29,10 @@ def ranked(sumname):
            "Твои очки лиги: {} \n".format(my_ranked_stats[0]['tier'],
                                           my_ranked_stats[0]['rank'],
                                           str(my_ranked_stats[0]['leaguePoints']))
-    print(text)
-    print(my_ranked_stats)
+    # print(text)
+    # print(my_ranked_stats)
     return text
 
 
 # ranked(sumname)
-summoner(sumname)
+# summoner(sumname)
