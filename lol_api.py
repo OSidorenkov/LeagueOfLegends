@@ -1,3 +1,4 @@
+from requests import HTTPError
 from riotwatcher import RiotWatcher
 import config
 
