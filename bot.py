@@ -11,6 +11,7 @@ import lol_api
 commands = {  # command description used in the "help" command
               'start': 'Get used to the bot',
               'help': 'Даст информацию о доступных командах',
+              'ranked': "Получить инфо по статусу в ранкеде",
               'getImage': 'A test using multi-stage messages, custom keyboard, and media sending',
               'summoner': 'Поменять имя призывателя'
 }
@@ -78,11 +79,15 @@ def command_start(m):
 def step_append_user(m):
     cid = m.chat.id
     name = m.text
-    append_user(cid, name)
-    bot.send_message(cid, "Я добавил тебя в свой блокнотик.")
-    bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
-    time.sleep(1)
-    bot.send_message(cid, "Введи /help для просмотра доступных команд.")
+    if lol_api.summoner(name) == 0:
+        bot.send_message(cid, "Такой призыватель не найден, попробуйте ввести по новой.")
+        bot.register_next_step_handler(m, step_append_user)
+    else:
+        append_user(cid, name)
+        bot.send_message(cid, "Я добавил тебя в свой блокнотик.")
+        bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
+        time.sleep(1)
+        bot.send_message(cid, "Введи /help для просмотра доступных команд.")
 
 
 # help page
@@ -109,8 +114,12 @@ def command_summoner(m):
 def step_summoner(m):
     cid = m.chat.id
     name = m.text
-    update_user(cid, name)
-    bot.send_message(cid, "Имя призывателя изменено!")
+    if lol_api.summoner(name) == 0:
+        bot.send_message(cid, "Такой призыватель не найден, попробуйте ввести по новой.")
+        bot.register_next_step_handler(m, step_summoner)
+    else:
+        update_user(cid, name)
+        bot.send_message(cid, "Имя призывателя изменено!")
 
 
 @bot.message_handler(commands=['ranked'])
@@ -120,7 +129,7 @@ def command_ranked(m):
     # this is the standard reply to a normal message
     bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
     time.sleep(1)
-    bot.send_message(m.chat.id, "Твоя стата в ранкеде: " + lol_api.ranked(sumname))
+    bot.send_message(m.chat.id, lol_api.ranked(sumname), parse_mode="markdown")
 
 # @bot.message_handler(func=lambda message: True, content_types=['text'])
 # def menu(message):
