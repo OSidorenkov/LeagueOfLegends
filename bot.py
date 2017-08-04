@@ -70,10 +70,11 @@ def command_start(m):
         bot.send_message(cid, "Рад тебя видеть чампион! Напиши свой ник, чтобы я заценил как ты тащишь катки =)")
         bot.register_next_step_handler(m, step_append_user)
     else:
-        bot.send_message(cid, "Рад тебя снова видеть чампион! Я тебя знаю, ты {}".format(user))
-        bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
-        time.sleep(1)
-        bot.send_message(cid, "Введи /help для просмотра доступных команд.")
+        markup = types.ReplyKeyboardMarkup()
+        markup.row('summoner', 'ranked')
+        markup.row('stats')
+        markup.row('help')
+        bot.send_message(cid, "Рад тебя снова видеть чампион! Я тебя знаю, ты {}".format(user), reply_markup=markup)
 
 
 def step_append_user(m):
@@ -85,8 +86,6 @@ def step_append_user(m):
     else:
         append_user(cid, name)
         bot.send_message(cid, "Я добавил тебя в свой блокнотик.")
-        bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
-        time.sleep(1)
         bot.send_message(cid, "Введи /help для просмотра доступных команд.")
 
 
@@ -126,10 +125,35 @@ def step_summoner(m):
 def command_ranked(m):
     cid = m.chat.id
     sumname = get_user(cid)
-    # this is the standard reply to a normal message
-    bot.send_chat_action(cid, 'typing')  # show the bot "typing" (max. 5 secs)
-    time.sleep(1)
-    bot.send_message(m.chat.id, lol_api.ranked(sumname), parse_mode="markdown")
+    bot.send_photo(cid, lol_api.icons(sumname))
+    bot.send_message(cid, lol_api.ranked(sumname), parse_mode="markdown")
+
+
+@bot.message_handler(commands=['stats'])
+def command_stats(m):
+    cid = m.chat.id
+    markup = types.ReplyKeyboardMarkup()
+    markup.row('За сезон', 'Последние 20 матчей')
+    bot.send_message(cid, "За какой период хочешь посмотреть статистику?", reply_markup=markup)
+    bot.register_next_step_handler(m, command_stats_season)
+
+
+def command_stats_season(m):
+    cid = m.chat.id
+    markup = types.ReplyKeyboardMarkup()
+    markup.row('1', '2', '3')
+    markup.row('4', '5', '6')
+    markup.row('7', '8', '9')
+    bot.send_message(cid, "Выбери сезон", reply_markup=markup)
+    bot.register_next_step_handler(m, command_stats_kda)
+
+
+def command_stats_kda(m):
+    cid = m.chat.id
+    season = m.text
+    sumname = get_user(cid)
+    bot.send_message(cid, lol_api.get_kda(sumname, season))
+
 
 # @bot.message_handler(func=lambda message: True, content_types=['text'])
 # def menu(message):
